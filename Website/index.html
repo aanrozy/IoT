@@ -1,0 +1,119 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="author" content="colorlib.com">
+    <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
+    <link href="css/main.css" rel="stylesheet" />
+    <script type="text/javascript" src="js/mqttws31.js"></script>
+    <script>
+    var client;
+    var subscribeTopic = 'teststring/';
+    var Messages = '';
+
+    window.onload = function(){
+            var message = new Paho.MQTT.Message("Disconnected");
+            message.destinationName = subscribeTopic;
+            message.qos = 0;
+            message.retained = false;
+
+
+            var options = {
+    	  onSuccess:onConnect,
+    	  onFailure:onFailure,
+    	  keepAliveInterval:60,
+    	  cleanSession:true,
+    	  useSSL:false,
+    	  timeout:30,
+    	  willMessage: message
+            };
+
+            client = new Paho.MQTT.Client("broker.mqttdashboard.com", 8000, "Skrips1-" + parseInt(Math.random() * 100, 10));
+
+            client.onConnectionLost = onConnectionLost;
+            client.onMessageArrived = onMessageArrived;
+            client.onMessageDelivered = onMessageDelivered;
+
+            client.connect(options);
+    }
+
+    function onConnect(){
+            console.log("onConnect");
+            client.subscribe(subscribeTopic);
+    }
+
+    function onFailure(message){
+            console.log("Connection failed: "+message.errorMessage);
+    }
+
+    function onConnectionLost(responseObject){
+            if( responseObject.errorCode !== 0 ){
+                    console.log("onConnectionLost: "+responseObject.errorMessage);
+            }
+    }
+
+    function onMessageArrived(message){
+            console.log("onMessageArrived: "+message.payloadString);
+            Messages += '<span class="info" >Kondisi : '+message.payloadString+'</span><br>';
+            document.getElementById('response').innerHTML = '<pre>'+Messages+'</pre>';
+
+    }
+
+    function onMessageDelivered(message){
+            console.log("onMessageDelivered: "+message.payloadString);
+
+    }
+
+    function doDisconnect(){
+            client.disconnect();
+    }
+
+    function subscribe(){
+      var topic = document.getElementById('topic').value;
+      if (topic != '' && topic != 'teststring/') {
+          if (topic == 'Klojen' || topic == 'klojen') {
+              topic = 'Klojen';
+              client.subscribe(topic);
+          } else if (topic == 'Blimbing' || topic == 'blimbing') {
+              client.subscribe(topic);
+          } else if (topic == 'Kedungkandang' || topic == 'kedungkandang') {
+              client.subscribe(topic);
+          } else if (topic == 'Lowokwaru' || topic == 'lowokwaru') {
+              client.subscribe(topic);
+          } else if (topic == 'Sukun' || topic == 'sukun') {
+              client.subscribe(topic);
+          } else {
+              alert('Kecamatan tidak terdaftar');
+          }
+      } else {
+          alert('mohon isi kecamatan');
+      }
+    }
+
+
+    </script>
+  </head>
+  <body>
+    <div class="s130">
+      <form>
+        <span class="info" >Contoh : Klojen, Lowokwaru</span>
+        <div class="inner-form">
+          <div class="input-field first-wrap">
+            <div class="svg-wrapper">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
+              </svg>
+            </div>
+            <input id="topic" type="text" placeholder="Cari Kecamatan Malang" />
+          </div>
+          <div class="input-field second-wrap">
+            <button class="btn-search" type="button" onclick="subscribe()"/>SEARCH</button>
+          </div>
+        </div>
+        <div id="response"></div>
+      </form>
+    </div>
+    <script src="js/extention/choices.js"></script>
+  </body><!-- This templates was made by Colorlib (https://colorlib.com) -->
+</html>
